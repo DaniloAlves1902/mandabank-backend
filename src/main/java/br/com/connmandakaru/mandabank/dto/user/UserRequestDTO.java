@@ -7,11 +7,9 @@ import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.br.CNPJ;
 import org.hibernate.validator.constraints.br.CPF;
 
-import java.util.UUID;
-
 @CpfOrCnpjRequired
 public record UserRequestDTO(
-        UUID id,
+        String id,
 
         @NotBlank(message = "First name cannot be empty")
         String firstName,
@@ -19,11 +17,9 @@ public record UserRequestDTO(
         @NotBlank(message = "Last name cannot be empty")
         String lastName,
 
-        @NotBlank(message = "CPF is required")
         @CPF(message = "Invalid CPF format")
         String cpf,
 
-        @NotBlank(message = "CNPJ is required")
         @CNPJ(message = "Invalid CNPJ format")
         String cnpj,
 
@@ -34,5 +30,6 @@ public record UserRequestDTO(
         @NotBlank(message = "Password is required")
         @Size(min = 6, message = "Password must be at least 6 characters long")
         String password
+
 ) {
 }

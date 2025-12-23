@@ -2,18 +2,21 @@ package br.com.connmandakaru.mandabank.dto.user;
 
 
 import br.com.connmandakaru.mandabank.entity.User;
+import br.com.connmandakaru.mandabank.entity.enums.user.UserRole;
 
-import java.util.UUID;
+import java.math.BigDecimal;
 
 public record UserResponseDTO(
-        UUID id,
+        String id,
         String firstName,
         String lastName,
-        String email
+        String email,
+        UserRole role,
+        BigDecimal balance
 ) {
 
     public UserResponseDTO(User user) {
-        this(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail());
+        this(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getRole(), user.getBalance());
     }
 
 }

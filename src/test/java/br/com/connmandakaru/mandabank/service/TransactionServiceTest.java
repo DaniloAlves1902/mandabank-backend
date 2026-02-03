@@ -14,6 +14,7 @@ import br.com.connmandakaru.mandabank.repositories.UserRepository;
 import br.com.connmandakaru.mandabank.service.transaction.TransactionExecutionService;
 import br.com.connmandakaru.mandabank.service.transaction.TransactionFailureService;
 import br.com.connmandakaru.mandabank.service.transaction.TransactionService;
+import br.com.connmandakaru.mandabank.service.transactionLog.TransactionLogService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,6 +46,8 @@ class TransactionServiceTest {
     private TransactionFailureService failureService;
     @Mock
     private TransactionMapper mapper;
+    @Mock
+    private TransactionLogService logService;
 
     @Test
     @DisplayName("You should successfully complete the PIX process when everything is ok.")

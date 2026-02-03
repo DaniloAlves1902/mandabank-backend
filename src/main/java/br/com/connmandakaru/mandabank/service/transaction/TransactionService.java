@@ -4,11 +4,13 @@ import br.com.connmandakaru.mandabank.dto.transaction.TransactionRequestDTO;
 import br.com.connmandakaru.mandabank.dto.transaction.TransactionResponseDTO;
 import br.com.connmandakaru.mandabank.entity.Transaction;
 import br.com.connmandakaru.mandabank.entity.User;
+import br.com.connmandakaru.mandabank.entity.enums.transactions.TransactionStatus;
 import br.com.connmandakaru.mandabank.entity.enums.transactions.TransactionType;
 import br.com.connmandakaru.mandabank.exception.user.UserNotFoundException;
 import br.com.connmandakaru.mandabank.mapper.TransactionMapper;
 import br.com.connmandakaru.mandabank.repositories.TransactionRepository;
 import br.com.connmandakaru.mandabank.repositories.UserRepository;
+import br.com.connmandakaru.mandabank.service.transactionLog.TransactionLogService;
 import br.com.connmandakaru.mandabank.validation.transaction.ValidatePayerAndPayee;
 import br.com.connmandakaru.mandabank.validation.transaction.ValidateTransaction;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ public class TransactionService {
     private final TransactionExecutionService executionService;
     private final TransactionFailureService failureService;
     private final TransactionMapper mapper;
+    private final TransactionLogService logService;
 
     @Transactional
     public TransactionResponseDTO sendPIX(TransactionRequestDTO data) {
@@ -41,19 +44,38 @@ public class TransactionService {
         transaction.setPayer(payer);
         transaction.setPayee(payee);
         transaction.setTransactionType(TransactionType.PIX);
-        transaction.markPending();
 
+        transaction.markPending();
         transactionRepository.save(transaction);
+
+        logService.log(
+                transaction,
+                TransactionStatus.PENDING,
+                "Transação PIX criada e aguardando processamento"
+        );
 
         try {
             executionService.execute(payer, payee, data.transactionValue());
 
             transaction.complete();
+
+            logService.log(
+                    transaction,
+                    TransactionStatus.COMPLETED,
+                    "Transação PIX concluída com sucesso"
+            );
+
             return mapper.toResponse(transaction);
 
         } catch (Exception ex) {
 
             failureService.markAsFailed(transaction.getId(), ex.getMessage());
+
+            logService.log(
+                    transaction,
+                    TransactionStatus.FAILED,
+                    "Falha ao executar PIX: " + ex.getMessage()
+            );
 
             throw ex;
         }
